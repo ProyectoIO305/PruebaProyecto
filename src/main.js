@@ -136,7 +136,6 @@ async function enviarDatosAlBackend(datos) {
 
     mostrarAnalisisSensibilidad(resultado);
 
-    // Aquí agregamos el botón después del análisis
     agregarBotonArbol(datos.arbol);
 
   } catch (error) {
@@ -205,7 +204,6 @@ function mostrarArbolMermaid(arbol) {
 
   contenedor.appendChild(divMermaid);
 
-  // Renderizar Mermaid (asegúrate de haber incluido el script Mermaid)
   if (window.mermaid) {
     window.mermaid.init(undefined, document.querySelectorAll('.mermaid'));
   }
@@ -218,7 +216,34 @@ function generarDiagramaMermaid(nodo) {
   function recorrer(nodoActual) {
     if (!nodoActual) return;
 
-    let etiqueta = `${nodoActual.id}\\nZ=${Math.round(nodoActual.z * 1000) / 1000}`;
+    let funcionObjetivo = 'Z = ';
+    nodoActual.funcionObjetivo.forEach((coef, index) => {
+      funcionObjetivo += `${coef}${generarSubindice(index + 1)}`;
+      if (index < nodoActual.funcionObjetivo.length - 1) {
+        funcionObjetivo += ' + ';
+      }
+    });
+
+    let restriccionesTexto = '';
+    nodoActual.restriccionesOriginales.forEach(r => {
+      restriccionesTexto += `${formatearRestriccion(r)}\\n`;
+    });
+
+    nodoActual.restriccionesAdicionales.forEach(r => {
+      restriccionesTexto += `${formatearRestriccion(r)}\\n`;
+    });
+
+    let solucionTexto = 'Solución: ';
+    nodoActual.solucion.forEach((valor, index) => {
+      solucionTexto += `X${index + 1} = ${Math.round(valor * 1000) / 1000}`;
+      if (index < nodoActual.solucion.length - 1) {
+        solucionTexto += ', ';
+      }
+    });
+
+    solucionTexto += `, Z = ${Math.round(nodoActual.z * 1000) / 1000}`;
+
+    let etiqueta = `${nodoActual.id}\\n${funcionObjetivo}\\n${restriccionesTexto}\\n${solucionTexto}`;
 
     if (nodoActual.esInfeasible) {
       etiqueta += '\\n⛔ Inviable';
@@ -228,30 +253,19 @@ function generarDiagramaMermaid(nodo) {
       etiqueta += '\\n🌿 Fraccional';
     }
 
-    // Mostrar función objetivo
-    etiqueta += `\\nZ = ${nodoActual.coefObjetivo.map((c, i) => `${c}x${i + 1}`).join(' + ')}`;
-
-    // Mostrar restricciones
-    let todasLasRestricciones = [...nodoActual.restriccionesBase, ...nodoActual.restriccionesAdicionales];
-    todasLasRestricciones.forEach((r, index) => {
-      etiqueta += `\\n${r.coef.map((c, i) => `${c}x${i + 1}`).join(' + ')} ${r.operador} ${r.valor}`;
-    });
-
-    // Mostrar valores Xi
-    if (nodoActual.solucion.length > 0) {
-      etiqueta += '\\nSolución: ';
-      etiqueta += nodoActual.solucion.map((v, i) => `x${i + 1}=${Math.round(v * 1000) / 1000}`).join(', ');
-    }
-
     resultado += `${nodoActual.id}["${etiqueta}"];\n`;
 
     if (nodoActual.ramaIzquierda) {
-      conexiones.push(`${nodoActual.id} -->|Izquierda| ${nodoActual.ramaIzquierda.id};`);
+      const restriccionIzquierda = nodoActual.ramaIzquierda.restriccionesAdicionales.at(-1);
+      const textoIzquierda = formatearRestriccion(restriccionIzquierda, true);
+      conexiones.push(`${nodoActual.id} -->|"${textoIzquierda}"| ${nodoActual.ramaIzquierda.id};`);
       recorrer(nodoActual.ramaIzquierda);
     }
 
     if (nodoActual.ramaDerecha) {
-      conexiones.push(`${nodoActual.id} -->|Derecha| ${nodoActual.ramaDerecha.id};`);
+      const restriccionDerecha = nodoActual.ramaDerecha.restriccionesAdicionales.at(-1);
+      const textoDerecha = formatearRestriccion(restriccionDerecha, true);
+      conexiones.push(`${nodoActual.id} -->|"${textoDerecha}"| ${nodoActual.ramaDerecha.id};`);
       recorrer(nodoActual.ramaDerecha);
     }
   }
@@ -261,3 +275,26 @@ function generarDiagramaMermaid(nodo) {
   return resultado;
 }
 
+function generarSubindice(numero) {
+  const subindices = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'];
+  return String(numero).split('').map(d => subindices[d]).join('');
+}
+
+function formatearRestriccion(restriccion, soloLado = false) {
+  let texto = '';
+  restriccion.coef.forEach((coef, index) => {
+    if (coef !== 0) {
+      if (texto.length > 0 && coef > 0) texto += ' + ';
+      if (coef < 0) texto += ' - ';
+      texto += `${Math.abs(coef)}${generarSubindice(index + 1)}`;
+    }
+  });
+
+  let simbolo = restriccion.operador.replace('<=', '≤').replace('>=', '≥');
+
+  if (soloLado) {
+    return texto + ' ' + simbolo + ' ' + restriccion.valor;
+  }
+
+  return `${texto} ${simbolo} ${restriccion.valor}`;
+}
