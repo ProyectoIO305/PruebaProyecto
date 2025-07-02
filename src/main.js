@@ -110,7 +110,7 @@ function mostrarSolucion(solucion) {
 
 async function enviarDatosAlBackend(datos) {
   try {
-    const response = await fetch('https://proyecto-backend-go8m.onrender.com/api/sensibilidad', { // Reemplaza TU_URL_BACKEND por tu URL real
+    const response = await fetch('https://proyecto-backend-go8m.onrender.com/api/sensibilidad', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -121,8 +121,54 @@ async function enviarDatosAlBackend(datos) {
     const resultado = await response.json();
     console.log('Respuesta del backend:', resultado);
     alert('Datos enviados correctamente al backend');
+
+    // Mostrar el análisis de sensibilidad
+    mostrarAnalisisSensibilidad(resultado);
+
   } catch (error) {
     console.error('Error al enviar los datos al backend:', error);
     alert('Ocurrió un error al conectarse con el backend');
   }
+}
+
+function mostrarAnalisisSensibilidad(resultado) {
+  const contenedor = document.getElementById('resultado-container');
+
+  // Crear sección para la sensibilidad
+  const sensibilidadDiv = document.createElement('div');
+  sensibilidadDiv.innerHTML = '<h2>Análisis de Sensibilidad</h2>';
+
+  // Tabla de sensibilidad de variables
+  let tablaVariables = '<h3>Sensibilidad de Variables:</h3>';
+  tablaVariables += '<table border="1"><tr><th>Variable</th><th>Valor Actual</th><th>Permisible Aumentar</th><th>Permisible Disminuir</th></tr>';
+
+  resultado.sensibilidadVariables.forEach(v => {
+    tablaVariables += `<tr>
+      <td>${v.variable}</td>
+      <td>${v.valorActual}</td>
+      <td>${v.permisibleAumentar}</td>
+      <td>${v.permisibleDisminuir}</td>
+    </tr>`;
+  });
+
+  tablaVariables += '</table>';
+
+  // Tabla de sensibilidad de restricciones
+  let tablaRestricciones = '<h3>Sensibilidad de Restricciones:</h3>';
+  tablaRestricciones += '<table border="1"><tr><th>Restricción</th><th>Valor Actual</th><th>Valor Sombra</th><th>Permisible Aumentar</th><th>Permisible Disminuir</th></tr>';
+
+  resultado.sensibilidadRestricciones.forEach(r => {
+    tablaRestricciones += `<tr>
+      <td>${r.restriccion}</td>
+      <td>${r.valorActual}</td>
+      <td>${r.valorSombra}</td>
+      <td>${r.permisibleAumentar}</td>
+      <td>${r.permisibleDisminuir}</td>
+    </tr>`;
+  });
+
+  tablaRestricciones += '</table>';
+
+  sensibilidadDiv.innerHTML += tablaVariables + tablaRestricciones;
+  contenedor.appendChild(sensibilidadDiv);
 }
