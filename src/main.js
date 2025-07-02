@@ -210,6 +210,7 @@ function mostrarArbolMermaid(arbol) {
 function generarDiagramaMermaid(nodo) {
   let resultado = 'graph TD;\n';
   let conexiones = [];
+  let estilos = [];
 
   function recorrer(nodoActual) {
     if (!nodoActual) return;
@@ -246,7 +247,8 @@ function generarDiagramaMermaid(nodo) {
     if (nodoActual.esInfeasible) {
       etiqueta += '\\n⛔ Inviable';
     } else if (nodoActual.esEntera) {
-      etiqueta += '\\n✅ Entera';
+      etiqueta += '\\n⭐ Solución Final';
+      estilos.push(`style ${nodoActual.id} fill:#c6f6c6,stroke:#333,stroke-width:2px`);
     } else {
       etiqueta += '\\n🌿 Fraccional';
     }
@@ -269,7 +271,7 @@ function generarDiagramaMermaid(nodo) {
   }
 
   recorrer(nodo);
-  resultado += conexiones.join('\n');
+  resultado += conexiones.join('\n') + '\n' + estilos.join('\n');
   return resultado;
 }
 
