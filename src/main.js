@@ -110,23 +110,37 @@ function mostrarSolucion(solucion) {
 
 async function enviarDatosAlBackend(datos) {
   try {
+    // Extraer lhs y rhs en el formato que el backend espera
+    const lhs = datos.restricciones.map(r => r.coef);
+    const rhs = datos.restricciones.map(r => r.valor);
+
+    // Preparar el formato correcto para el backend
+    const datosBackend = {
+      tipo: datos.tipo,
+      coef_objetivo: datos.coefObjetivo,
+      lhs: lhs,
+      rhs: rhs
+    };
+
+    console.log('🔵 Datos enviados al backend:', datosBackend);
+
     const response = await fetch('https://backend-python-sensibilidad.onrender.com/analisis-sensibilidad', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(datos)
+      body: JSON.stringify(datosBackend)
     });
 
     const resultado = await response.json();
-    console.log('Respuesta del backend:', resultado);
+    console.log('✅ Respuesta del backend:', resultado);
     alert('Datos enviados correctamente al backend');
 
-    // Mostrar el análisis de sensibilidad
+    // Mostrar el análisis de sensibilidad (puedes ajustarlo luego)
     mostrarAnalisisSensibilidad(resultado);
 
   } catch (error) {
-    console.error('Error al enviar los datos al backend:', error);
+    console.error('❌ Error al enviar los datos al backend:', error);
     alert('Ocurrió un error al conectarse con el backend');
   }
 }
