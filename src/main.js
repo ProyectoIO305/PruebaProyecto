@@ -124,7 +124,7 @@ async function enviarDatosAlBackend(datos) {
 
     console.log('🔵 Datos enviados al backend:', datosBackend);
 
-    const response = await fetch('https://backend-python-sensibilidad.onrender.com/analisis-sensibilidad', {
+    const response = await fetch('https://backend-python-sensibilidad-1.onrender.com/analisis-sensibilidad', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
