@@ -10,7 +10,7 @@
 </head>
 
 <body>
-  <h1>Calculador de PL con ramificacion y acotacion</h1>
+  <h1>Calculador de PL con ramificación y acotación</h1>
 
   <div class="form-row">
     <label for="variables">Ingrese la cantidad de variables:</label>
@@ -31,7 +31,20 @@
   <!-- Contenedor para mostrar resultados -->
   <div id="resultado-container"></div>
 
+  <!-- Botón para mostrar árbol -->
+  <div class="form-row" style="margin-top: 20px;">
+    <button id="mostrarArbolBtn" type="button" style="display: none;">Mostrar Árbol</button>
+  </div>
+
+  <!-- Tu archivo JS -->
   <script type="module" src="/src/main.js"></script>
+
+  <!-- Mermaid CDN -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    window.mermaid = mermaid;
+    mermaid.initialize({ startOnLoad: false });
+  </script>
 </body>
 
 </html>

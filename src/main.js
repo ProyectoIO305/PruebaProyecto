@@ -194,5 +194,56 @@ function agregarBotonArbol(arbol) {
 }
 
 function mostrarArbolMermaid(arbol) {
-  console.log('🌳 Aquí deberías graficar el árbol con Mermaid. Próximo paso: generar el string Mermaid.');
+  const contenedor = document.getElementById('resultado-container');
+
+  const diagramaMermaid = generarDiagramaMermaid(arbol);
+
+  const divMermaid = document.createElement('div');
+  divMermaid.className = 'mermaid';
+  divMermaid.style.marginTop = '20px';
+  divMermaid.textContent = diagramaMermaid;
+
+  contenedor.appendChild(divMermaid);
+
+  // Renderizar Mermaid (asegúrate de haber incluido el script Mermaid)
+  if (window.mermaid) {
+    window.mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+  }
 }
+
+function generarDiagramaMermaid(nodo) {
+  let resultado = 'graph TD;\n';
+  let conexiones = [];
+
+  function recorrer(nodoActual) {
+    if (!nodoActual) return;
+
+    // Etiqueta con Z y tipo de solución
+    let etiqueta = `${nodoActual.id}\\nZ=${Math.round(nodoActual.z * 1000) / 1000}`;
+
+    if (nodoActual.esInfeasible) {
+      etiqueta += '\\n⛔ Inviable';
+    } else if (nodoActual.esEntera) {
+      etiqueta += '\\n✅ Entera';
+    } else {
+      etiqueta += '\\n🌿 Fraccional';
+    }
+
+    resultado += `${nodoActual.id}["${etiqueta}"];\n`;
+
+    if (nodoActual.ramaIzquierda) {
+      conexiones.push(`${nodoActual.id} -->|Izquierda| ${nodoActual.ramaIzquierda.id};`);
+      recorrer(nodoActual.ramaIzquierda);
+    }
+
+    if (nodoActual.ramaDerecha) {
+      conexiones.push(`${nodoActual.id} -->|Derecha| ${nodoActual.ramaDerecha.id};`);
+      recorrer(nodoActual.ramaDerecha);
+    }
+  }
+
+  recorrer(nodo);
+  resultado += conexiones.join('\n');
+  return resultado;
+}
+
