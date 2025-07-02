@@ -217,15 +217,15 @@ function generarDiagramaMermaid(nodo) {
     if (!nodoActual) return;
 
     let funcionObjetivo = 'Z = ';
-    nodoActual.funcionObjetivo.forEach((coef, index) => {
+    nodoActual.coefObjetivo.forEach((coef, index) => {
       funcionObjetivo += `${coef}${generarSubindice(index + 1)}`;
-      if (index < nodoActual.funcionObjetivo.length - 1) {
+      if (index < nodoActual.coefObjetivo.length - 1) {
         funcionObjetivo += ' + ';
       }
     });
 
     let restriccionesTexto = '';
-    nodoActual.restriccionesOriginales.forEach(r => {
+    nodoActual.restriccionesBase.forEach(r => {
       restriccionesTexto += `${formatearRestriccion(r)}\\n`;
     });
 
