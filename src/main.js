@@ -110,7 +110,7 @@ function mostrarSolucion(solucion) {
 
 async function enviarDatosAlBackend(datos) {
   try {
-    const response = await fetch('https://proyecto-backend-go8m.onrender.com', { // Reemplaza TU_URL_BACKEND por tu URL real
+    const response = await fetch('https://proyecto-backend-go8m.onrender.com/api/sensibilidad', { // Reemplaza TU_URL_BACKEND por tu URL real
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
