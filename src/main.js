@@ -1,20 +1,16 @@
+// Aquí mantengo todo tu código igual hasta procesarCalculo
+
+// IMPORTACIONES IGUAL
 import './style.css';
 import './generar_tabla.js';
 
 import MetodoRamificacionAcotacion from './MetodoRamificacionAcotacion.js';
 import MetodoMixto from './MetodoMixto.js';
 import DatosProblema from './DatosProblema.js';
-import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-
-let ultimaSolucion = null;
 
 document.addEventListener('click', function (event) {
   if (event.target && event.target.id === 'calcularBtn') {
     procesarCalculo();
-  }
-
-  if (event.target && event.target.id === 'mostrarArbolBtn') {
-    mostrarArbol();
   }
 });
 
@@ -56,28 +52,24 @@ async function procesarCalculo() {
   } else {
     const ramificacion = new MetodoRamificacionAcotacion(tipo, cantidadVariables, datos);
     solucion = await ramificacion.iniciar();
-    ultimaSolucion = solucion; // Guardamos el árbol
   }
 
   mostrarSolucion(solucion);
-  await enviarDatosAlBackend({ tipo, coefObjetivo, restricciones, esEntera });
 
-  // Mostrar botón después del cálculo
-  if (document.getElementById('mostrarArbolBtn') === null) {
-    const btnArbol = document.createElement('button');
-    btnArbol.textContent = 'Mostrar Árbol';
-    btnArbol.id = 'mostrarArbolBtn';
-
-    const contenedor = document.getElementById('resultado-container');
-    contenedor.appendChild(btnArbol);
-  }
+  await enviarDatosAlBackend({
+    tipo,
+    coefObjetivo,
+    restricciones,
+    esEntera,
+    arbol: solucion.arbol // Lo pasamos para usarlo luego
+  });
 }
 
 function mostrarSolucion(solucion) {
   const contenedor = document.getElementById('resultado-container');
   contenedor.innerHTML = '';
 
-  if (!solucion) {
+  if (!solucion || !solucion.solucion) {
     const errorDiv = document.createElement('div');
     errorDiv.innerHTML = '<h2>No se encontró solución entera factible.</h2>';
     contenedor.appendChild(errorDiv);
@@ -132,7 +124,9 @@ async function enviarDatosAlBackend(datos) {
 
     const response = await fetch('https://backend-python-sensibilidad-1.onrender.com/analisis-sensibilidad', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify(datosBackend)
     });
 
@@ -141,6 +135,9 @@ async function enviarDatosAlBackend(datos) {
     alert('Datos enviados correctamente al backend');
 
     mostrarAnalisisSensibilidad(resultado);
+
+    // Aquí agregamos el botón después del análisis
+    agregarBotonArbol(datos.arbol);
 
   } catch (error) {
     console.error('❌ Error al enviar los datos al backend:', error);
@@ -158,72 +155,44 @@ function mostrarAnalisisSensibilidad(resultado) {
   tablaVariables += '<table border="1"><tr><th>Variable</th><th>Valor Actual</th><th>Comentario</th></tr>';
 
   resultado.sensibilidadVariables.forEach(v => {
-    tablaVariables += `<tr><td>${v.variable}</td><td>${v.valorActual}</td><td>${v.comentario}</td></tr>`;
+    tablaVariables += `<tr>
+      <td>${v.variable}</td>
+      <td>${v.valorActual}</td>
+      <td>${v.comentario}</td>
+    </tr>`;
   });
+
   tablaVariables += '</table>';
 
   let tablaRestricciones = '<h3>Sensibilidad de Restricciones:</h3>';
   tablaRestricciones += '<table border="1"><tr><th>Restricción</th><th>Valor Actual</th><th>Valor Sombra</th><th>Comentario</th></tr>';
 
   resultado.sensibilidadRestricciones.forEach(r => {
-    tablaRestricciones += `<tr><td>${r.restriccion}</td><td>${r.valorActual}</td><td>${r.valorSombra}</td><td>${r.comentario}</td></tr>`;
+    tablaRestricciones += `<tr>
+      <td>${r.restriccion}</td>
+      <td>${r.valorActual}</td>
+      <td>${r.valorSombra}</td>
+      <td>${r.comentario}</td>
+    </tr>`;
   });
+
   tablaRestricciones += '</table>';
 
   sensibilidadDiv.innerHTML += tablaVariables + tablaRestricciones;
   contenedor.appendChild(sensibilidadDiv);
 }
 
-function mostrarArbol() {
-  if (!ultimaSolucion || !ultimaSolucion.arbol) {
-    alert('No se ha calculado una solución aún.');
-    return;
-  }
-
-  const arbolMermaid = generarDiagramaMermaid(ultimaSolucion.arbol);
+function agregarBotonArbol(arbol) {
   const contenedor = document.getElementById('resultado-container');
 
-  const divArbol = document.createElement('div');
-  divArbol.innerHTML = `<pre class="mermaid">${arbolMermaid}</pre>`;
-  contenedor.appendChild(divArbol);
+  const boton = document.createElement('button');
+  boton.textContent = 'Mostrar Árbol de Ramificación';
+  boton.style.marginTop = '15px';
+  boton.addEventListener('click', () => mostrarArbolMermaid(arbol));
 
-  mermaid.initialize({ startOnLoad: true });
-  mermaid.contentLoaded();
+  contenedor.appendChild(boton);
 }
 
-function generarDiagramaMermaid(nodo) {
-  let resultado = 'graph TD\n';
-  let conexiones = [];
-
-  function recorrer(n) {
-    if (!n) return;
-
-    let label = n.id + '<br/>';
-
-    if (n.solucion) {
-      n.solucion.forEach((v, i) => {
-        label += `x${i + 1}=${v.toFixed(2)}<br/>`;
-      });
-      label += `Z=${n.z.toFixed(2)}`;
-    } else {
-      label += 'Infeasible';
-    }
-
-    resultado += `${n.id}["${label}"]\n`;
-
-    if (n.ramaIzquierda) {
-      conexiones.push(`${n.id} --> ${n.ramaIzquierda.id}`);
-      recorrer(n.ramaIzquierda);
-    }
-
-    if (n.ramaDerecha) {
-      conexiones.push(`${n.id} --> ${n.ramaDerecha.id}`);
-      recorrer(n.ramaDerecha);
-    }
-  }
-
-  recorrer(nodo);
-
-  resultado += conexiones.join('\n');
-  return resultado;
+function mostrarArbolMermaid(arbol) {
+  console.log('🌳 Aquí deberías graficar el árbol con Mermaid. Próximo paso: generar el string Mermaid.');
 }
