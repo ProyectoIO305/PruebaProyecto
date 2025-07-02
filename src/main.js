@@ -55,6 +55,13 @@ async function procesarCalculo() {
   }
 
   mostrarSolucion(solucion);
+
+  await enviarDatosAlBackend({
+    tipo,
+    coefObjetivo,
+    restricciones,
+    esEntera
+  });
 }
 
 function mostrarSolucion(solucion) {
@@ -99,4 +106,23 @@ function mostrarSolucion(solucion) {
 
   resultadoDiv.appendChild(interpretacionParrafo);
   contenedor.appendChild(resultadoDiv);
+}
+
+async function enviarDatosAlBackend(datos) {
+  try {
+    const response = await fetch('https://TU_URL_BACKEND.onrender.com/api/sensibilidad', { // Reemplaza TU_URL_BACKEND por tu URL real
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(datos)
+    });
+
+    const resultado = await response.json();
+    console.log('Respuesta del backend:', resultado);
+    alert('Datos enviados correctamente al backend');
+  } catch (error) {
+    console.error('Error al enviar los datos al backend:', error);
+    alert('Ocurrió un error al conectarse con el backend');
+  }
 }
