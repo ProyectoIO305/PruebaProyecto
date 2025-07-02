@@ -1,0 +1,72 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+label {
+  margin-right: 10px;
+  font-weight: bold;
+  min-width: 250px;
+}
+
+input {
+  padding: 5px 10px;
+  font-size: 16px;
+  flex: 1;
+}
+
+select {
+  padding: 5px 10px;
+  font-size: 16px;
+  flex: 1;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #005fa3;
+}
+
+.fila-restriccion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+#tabla-container input,
+#tabla-container select {
+  border: 2px solid black;
+  padding: 5px;
+  font-size: 16px;
+  width: 60px;
+  text-align: center;
+}
+
+#calcularBtn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #60e0e0;
+  border: 2px solid black;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#calcularBtn:hover {
+  background-color: #40cfcf;
+}

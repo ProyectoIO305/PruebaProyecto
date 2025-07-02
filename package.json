@@ -1,0 +1,18 @@
+{
+  "name": "ramificacion-acotacion",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  },
+  "dependencies": {
+    "glpk.js": "^4.0.2",
+    "javascript-lp-solver": "^0.4.24"
+  }
+}

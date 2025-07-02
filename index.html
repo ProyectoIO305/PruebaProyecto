@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Pagina para calcular PL entera con metodo de ramificacion y acotacion">
+  <title>Calculador de PL con ramificación y acotación</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <h1>Calculador de PL con ramificacion y acotacion</h1>
+
+  <div class="form-row">
+    <label for="variables">Ingrese la cantidad de variables:</label>
+    <input type="text" id="variables" placeholder="Cantidad de variables (entero)" required>
+  </div>
+
+  <div class="form-row">
+    <label for="restricciones">Ingrese la cantidad de restricciones:</label>
+    <input type="text" id="restricciones" placeholder="Cantidad de restricciones (entero)" required>
+  </div>
+
+  <div class="form-row">
+    <button id="generarTabla" type="button">Generar tabla</button>
+  </div>
+
+  <div id="tabla-container"></div>
+
+  <!-- Contenedor para mostrar resultados -->
+  <div id="resultado-container"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
