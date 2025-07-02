@@ -13,6 +13,7 @@ export default class MetodoRamificacionAcotacion {
 
     this.contadorNodos = 1; // Para asignar IDs únicos
     this.raizArbol = null;  // Nodo raíz del árbol
+    this.idNodoSolucionFinal = null; // 👉 Aquí guardaremos el ID de la mejor solución
   }
 
   async iniciar() {
@@ -55,7 +56,7 @@ export default class MetodoRamificacionAcotacion {
       }
       console.log(`Z = ${this.mejorZ}`);
 
-      return { solucion: this.mejorSolucion, z: this.mejorZ, arbol: this.raizArbol };
+      return { solucion: this.mejorSolucion, z: this.mejorZ, arbol: this.raizArbol, idNodoSolucionFinal: this.idNodoSolucionFinal }; // 👉 Incluimos el ID
     } else {
       console.log('\n❌ No se encontró solución entera factible.');
       return null;
@@ -83,7 +84,6 @@ export default class MetodoRamificacionAcotacion {
     }
     console.log(`Z = ${resultado[this.cantidadVariables].toFixed(4)}`);
 
-    // Verificar si es solución entera
     let esEntera = true;
     for (let i = 0; i < this.cantidadVariables; i++) {
       if (Math.abs(resultado[i] - Math.round(resultado[i])) > 1e-5) {
@@ -92,7 +92,6 @@ export default class MetodoRamificacionAcotacion {
       }
     }
 
-    // Actualizar nodo actual con la solución
     nodoActual.solucion = resultado.slice(0, this.cantidadVariables);
     nodoActual.z = resultado[this.cantidadVariables];
     nodoActual.esEntera = esEntera;
@@ -101,6 +100,8 @@ export default class MetodoRamificacionAcotacion {
       if (resultado[this.cantidadVariables] > this.mejorZ) {
         this.mejorZ = resultado[this.cantidadVariables];
         this.mejorSolucion = resultado.slice(0, this.cantidadVariables);
+        this.idNodoSolucionFinal = nodoActual.id; // 👉 Guardamos el ID de la mejor solución
+
         console.log('✅ NUEVA mejor solución entera encontrada:');
         for (let i = 0; i < this.cantidadVariables; i++) {
           console.log(`x${i + 1} = ${Math.round(resultado[i])}`);
@@ -112,7 +113,6 @@ export default class MetodoRamificacionAcotacion {
       return;
     }
 
-    // Encontrar la variable fraccional con mayor parte decimal
     let varFraccional = -1;
     let maxFrac = 0;
     for (let i = 0; i < this.cantidadVariables; i++) {
@@ -139,7 +139,6 @@ export default class MetodoRamificacionAcotacion {
 
     console.log(`📌 Ramificando variable x${varIndex + 1} = ${valor.toFixed(4)}`);
 
-    // Rama izquierda
     const ramaIzqRestricciones = JSON.parse(JSON.stringify(restriccionesAdicionales));
     ramaIzqRestricciones.push({
       coef: this.crearCoeficiente(varIndex),
@@ -163,7 +162,6 @@ export default class MetodoRamificacionAcotacion {
     console.log(`↙️  Rama Izquierda: x${varIndex + 1} <= ${Math.floor(valor)}`);
     await this.ramificar(datos, ramaIzqRestricciones, nodoIzquierda);
 
-    // Rama derecha
     const ramaDerRestricciones = JSON.parse(JSON.stringify(restriccionesAdicionales));
     ramaDerRestricciones.push({
       coef: this.crearCoeficiente(varIndex),
