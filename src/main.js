@@ -61,7 +61,7 @@ async function procesarCalculo() {
     coefObjetivo,
     restricciones,
     esEntera,
-    arbol: solucion.arbol // Lo pasamos para usarlo luego
+    arbol: solucion.arbol
   });
 }
 
@@ -87,10 +87,10 @@ function mostrarSolucion(solucion) {
 
   variables.forEach((valor, index) => {
     const parrafo = document.createElement('p');
-    parrafo.textContent = `x${index + 1} = ${Math.round(valor * 1000) / 1000}`;
+    parrafo.textContent = `X${index + 1} = ${Math.round(valor * 1000) / 1000}`;
     resultadoDiv.appendChild(parrafo);
 
-    valoresXi.push(`x${index + 1} = ${Math.round(valor * 1000) / 1000}`);
+    valoresXi.push(`X${index + 1} = ${Math.round(valor * 1000) / 1000}`);
   });
 
   const zParrafo = document.createElement('p');
@@ -124,9 +124,7 @@ async function enviarDatosAlBackend(datos) {
 
     const response = await fetch('https://backend-python-sensibilidad-1.onrender.com/analisis-sensibilidad', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(datosBackend)
     });
 
@@ -218,7 +216,7 @@ function generarDiagramaMermaid(nodo) {
 
     let funcionObjetivo = 'Z = ';
     nodoActual.coefObjetivo.forEach((coef, index) => {
-      funcionObjetivo += `${coef}${generarSubindice(index + 1)}`;
+      funcionObjetivo += `${coef}X${index + 1}`;
       if (index < nodoActual.coefObjetivo.length - 1) {
         funcionObjetivo += ' + ';
       }
@@ -275,18 +273,13 @@ function generarDiagramaMermaid(nodo) {
   return resultado;
 }
 
-function generarSubindice(numero) {
-  const subindices = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'];
-  return String(numero).split('').map(d => subindices[d]).join('');
-}
-
 function formatearRestriccion(restriccion, soloLado = false) {
   let texto = '';
   restriccion.coef.forEach((coef, index) => {
     if (coef !== 0) {
       if (texto.length > 0 && coef > 0) texto += ' + ';
       if (coef < 0) texto += ' - ';
-      texto += `${Math.abs(coef)}${generarSubindice(index + 1)}`;
+      texto += `${Math.abs(coef)}X${index + 1}`;
     }
   });
 
