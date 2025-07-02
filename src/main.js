@@ -218,7 +218,6 @@ function generarDiagramaMermaid(nodo) {
   function recorrer(nodoActual) {
     if (!nodoActual) return;
 
-    // Etiqueta con Z y tipo de solución
     let etiqueta = `${nodoActual.id}\\nZ=${Math.round(nodoActual.z * 1000) / 1000}`;
 
     if (nodoActual.esInfeasible) {
@@ -227,6 +226,21 @@ function generarDiagramaMermaid(nodo) {
       etiqueta += '\\n✅ Entera';
     } else {
       etiqueta += '\\n🌿 Fraccional';
+    }
+
+    // Mostrar función objetivo
+    etiqueta += `\\nZ = ${nodoActual.coefObjetivo.map((c, i) => `${c}x${i + 1}`).join(' + ')}`;
+
+    // Mostrar restricciones
+    let todasLasRestricciones = [...nodoActual.restriccionesBase, ...nodoActual.restriccionesAdicionales];
+    todasLasRestricciones.forEach((r, index) => {
+      etiqueta += `\\n${r.coef.map((c, i) => `${c}x${i + 1}`).join(' + ')} ${r.operador} ${r.valor}`;
+    });
+
+    // Mostrar valores Xi
+    if (nodoActual.solucion.length > 0) {
+      etiqueta += '\\nSolución: ';
+      etiqueta += nodoActual.solucion.map((v, i) => `x${i + 1}=${Math.round(v * 1000) / 1000}`).join(', ');
     }
 
     resultado += `${nodoActual.id}["${etiqueta}"];\n`;

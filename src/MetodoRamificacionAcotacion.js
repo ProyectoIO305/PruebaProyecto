@@ -1,19 +1,18 @@
 import MetodoSimplex from './MetodoSimplex';
-import DatosProblema from './DatosProblema';
 import NodoArbol from './NodoArbol';
+import DatosProblema from './DatosProblema';
 
 export default class MetodoRamificacionAcotacion {
   constructor(tipo, cantidadVariables, datosOriginales) {
     this.simplex = new MetodoSimplex();
     this.mejorZ = -Infinity;
     this.mejorSolucion = null;
-
     this.tipo = tipo;
     this.cantidadVariables = cantidadVariables;
     this.datosOriginales = datosOriginales;
 
-    this.idContador = 1;
-    this.raiz = null;
+    this.contadorNodos = 1; // Para asignar IDs únicos
+    this.raizArbol = null;  // Nodo raíz del árbol
   }
 
   async iniciar() {
@@ -35,10 +34,19 @@ export default class MetodoRamificacionAcotacion {
     }
     console.log(`Z = ${resultadoInicial[this.cantidadVariables]}`);
 
-    // Crear el nodo raíz
-    this.raiz = new NodoArbol(`PL${this.idContador++}`, [], resultadoInicial.slice(0, this.cantidadVariables), resultadoInicial[this.cantidadVariables], false);
+    // Crear nodo raíz
+    this.raizArbol = new NodoArbol(
+      `PL${this.contadorNodos++}`,
+      this.datosOriginales.restriccionesBase,
+      [],
+      this.datosOriginales.coefObjetivo,
+      resultadoInicial.slice(0, this.cantidadVariables),
+      resultadoInicial[this.cantidadVariables],
+      false,
+      false
+    );
 
-    await this.ramificar(this.datosOriginales, [], this.raiz);
+    await this.ramificar(this.datosOriginales, [], this.raizArbol);
 
     if (this.mejorSolucion !== null) {
       console.log('\n✅ Mejor solución entera encontrada:');
@@ -46,10 +54,11 @@ export default class MetodoRamificacionAcotacion {
         console.log(`x${i + 1} = ${this.mejorSolucion[i]}`);
       }
       console.log(`Z = ${this.mejorZ}`);
-      return { solucion: this.mejorSolucion, z: this.mejorZ, arbol: this.raiz };
+
+      return { solucion: this.mejorSolucion, z: this.mejorZ, arbol: this.raizArbol };
     } else {
       console.log('\n❌ No se encontró solución entera factible.');
-      return { solucion: null, arbol: this.raiz };
+      return null;
     }
   }
 
@@ -63,16 +72,18 @@ export default class MetodoRamificacionAcotacion {
 
     if (resultado === null) {
       console.log('⛔ Solución no factible. Rama muerta.');
+
       nodoActual.esInfeasible = true;
       return;
     }
 
-    console.log('🔎 Explorando nodo: ' + nodoActual.id);
+    console.log('🔎 Explorando nodo con solución relajada:');
     for (let i = 0; i < this.cantidadVariables; i++) {
       console.log(`x${i + 1} = ${resultado[i].toFixed(4)}`);
     }
     console.log(`Z = ${resultado[this.cantidadVariables].toFixed(4)}`);
 
+    // Verificar si es solución entera
     let esEntera = true;
     for (let i = 0; i < this.cantidadVariables; i++) {
       if (Math.abs(resultado[i] - Math.round(resultado[i])) > 1e-5) {
@@ -81,6 +92,7 @@ export default class MetodoRamificacionAcotacion {
       }
     }
 
+    // Actualizar nodo actual con la solución
     nodoActual.solucion = resultado.slice(0, this.cantidadVariables);
     nodoActual.z = resultado[this.cantidadVariables];
     nodoActual.esEntera = esEntera;
@@ -90,12 +102,17 @@ export default class MetodoRamificacionAcotacion {
         this.mejorZ = resultado[this.cantidadVariables];
         this.mejorSolucion = resultado.slice(0, this.cantidadVariables);
         console.log('✅ NUEVA mejor solución entera encontrada:');
+        for (let i = 0; i < this.cantidadVariables; i++) {
+          console.log(`x${i + 1} = ${Math.round(resultado[i])}`);
+        }
+        console.log(`Z = ${this.mejorZ}`);
       } else {
         console.log('ℹ️ Solución entera no mejora Z.');
       }
       return;
     }
 
+    // Encontrar la variable fraccional con mayor parte decimal
     let varFraccional = -1;
     let maxFrac = 0;
     for (let i = 0; i < this.cantidadVariables; i++) {
@@ -122,7 +139,7 @@ export default class MetodoRamificacionAcotacion {
 
     console.log(`📌 Ramificando variable x${varIndex + 1} = ${valor.toFixed(4)}`);
 
-    // Rama Izquierda
+    // Rama izquierda
     const ramaIzqRestricciones = JSON.parse(JSON.stringify(restriccionesAdicionales));
     ramaIzqRestricciones.push({
       coef: this.crearCoeficiente(varIndex),
@@ -130,13 +147,23 @@ export default class MetodoRamificacionAcotacion {
       valor: Math.floor(valor)
     });
 
-    const nodoIzq = new NodoArbol(`PL${this.idContador++}`, ramaIzqRestricciones, null, null, false);
-    nodoActual.ramaIzquierda = nodoIzq;
+    const nodoIzquierda = new NodoArbol(
+      `PL${this.contadorNodos++}`,
+      this.datosOriginales.restriccionesBase,
+      ramaIzqRestricciones,
+      this.datosOriginales.coefObjetivo,
+      [],
+      0,
+      false,
+      false
+    );
+
+    nodoActual.ramaIzquierda = nodoIzquierda;
 
     console.log(`↙️  Rama Izquierda: x${varIndex + 1} <= ${Math.floor(valor)}`);
-    await this.ramificar(datos, ramaIzqRestricciones, nodoIzq);
+    await this.ramificar(datos, ramaIzqRestricciones, nodoIzquierda);
 
-    // Rama Derecha
+    // Rama derecha
     const ramaDerRestricciones = JSON.parse(JSON.stringify(restriccionesAdicionales));
     ramaDerRestricciones.push({
       coef: this.crearCoeficiente(varIndex),
@@ -144,11 +171,21 @@ export default class MetodoRamificacionAcotacion {
       valor: Math.ceil(valor)
     });
 
-    const nodoDer = new NodoArbol(`PL${this.idContador++}`, ramaDerRestricciones, null, null, false);
-    nodoActual.ramaDerecha = nodoDer;
+    const nodoDerecha = new NodoArbol(
+      `PL${this.contadorNodos++}`,
+      this.datosOriginales.restriccionesBase,
+      ramaDerRestricciones,
+      this.datosOriginales.coefObjetivo,
+      [],
+      0,
+      false,
+      false
+    );
+
+    nodoActual.ramaDerecha = nodoDerecha;
 
     console.log(`↘️  Rama Derecha: x${varIndex + 1} >= ${Math.ceil(valor)}`);
-    await this.ramificar(datos, ramaDerRestricciones, nodoDer);
+    await this.ramificar(datos, ramaDerRestricciones, nodoDerecha);
   }
 
   crearCoeficiente(index) {

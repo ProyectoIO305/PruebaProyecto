@@ -1,12 +1,20 @@
 export default class NodoArbol {
-  constructor(id, restricciones, solucion, z, esEntera, esInfeasible = false) {
+  constructor(id, restriccionesBase, restriccionesAdicionales, coefObjetivo, solucion, z, esEntera, esInfeasible = false) {
     this.id = id; // Nombre como "PL1", "PL2", etc.
-    this.restricciones = restricciones; // Las restricciones acumuladas hasta este nodo
-    this.solucion = solucion; // Array con los valores de las variables
-    this.z = z; // Valor de la función objetivo
+
+    // Guardamos la función objetivo y todas las restricciones activas
+    this.coefObjetivo = coefObjetivo;
+    this.restriccionesBase = restriccionesBase;
+    this.restriccionesAdicionales = restriccionesAdicionales;
+
+    this.solucion = solucion;
+    this.z = z;
+
     this.esEntera = esEntera;
     this.esInfeasible = esInfeasible;
-    this.ramaIzquierda = null; // Nodo hijo izquierdo
-    this.ramaDerecha = null;   // Nodo hijo derecho
+
+    this.ramaIzquierda = null;
+    this.ramaDerecha = null;
   }
 }
+
