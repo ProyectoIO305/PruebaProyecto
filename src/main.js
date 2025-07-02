@@ -4,11 +4,17 @@ import './generar_tabla.js';
 import MetodoRamificacionAcotacion from './MetodoRamificacionAcotacion.js';
 import MetodoMixto from './MetodoMixto.js';
 import DatosProblema from './DatosProblema.js';
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
 
-// Escuchar evento cuando se presione el botón Calcular
+let ultimaSolucion = null;
+
 document.addEventListener('click', function (event) {
   if (event.target && event.target.id === 'calcularBtn') {
     procesarCalculo();
+  }
+
+  if (event.target && event.target.id === 'mostrarArbolBtn') {
+    mostrarArbol();
   }
 });
 
@@ -45,28 +51,31 @@ async function procesarCalculo() {
   let solucion;
 
   if (esEntera.includes(false)) {
-    // Si alguna variable es continua, usamos método mixto
     const metodoMixto = new MetodoMixto(tipo, cantidadVariables, datos, esEntera);
     solucion = await metodoMixto.iniciar();
   } else {
-    // Si todas son enteras, usamos método actual
     const ramificacion = new MetodoRamificacionAcotacion(tipo, cantidadVariables, datos);
     solucion = await ramificacion.iniciar();
+    ultimaSolucion = solucion; // Guardamos el árbol
   }
 
   mostrarSolucion(solucion);
+  await enviarDatosAlBackend({ tipo, coefObjetivo, restricciones, esEntera });
 
-  await enviarDatosAlBackend({
-    tipo,
-    coefObjetivo,
-    restricciones,
-    esEntera
-  });
+  // Mostrar botón después del cálculo
+  if (document.getElementById('mostrarArbolBtn') === null) {
+    const btnArbol = document.createElement('button');
+    btnArbol.textContent = 'Mostrar Árbol';
+    btnArbol.id = 'mostrarArbolBtn';
+
+    const contenedor = document.getElementById('resultado-container');
+    contenedor.appendChild(btnArbol);
+  }
 }
 
 function mostrarSolucion(solucion) {
   const contenedor = document.getElementById('resultado-container');
-  contenedor.innerHTML = ''; // Limpiar resultados anteriores
+  contenedor.innerHTML = '';
 
   if (!solucion) {
     const errorDiv = document.createElement('div');
@@ -86,7 +95,7 @@ function mostrarSolucion(solucion) {
 
   variables.forEach((valor, index) => {
     const parrafo = document.createElement('p');
-    parrafo.textContent = `x${index + 1} = ${Math.round(valor * 1000) / 1000}`; // 3 decimales
+    parrafo.textContent = `x${index + 1} = ${Math.round(valor * 1000) / 1000}`;
     resultadoDiv.appendChild(parrafo);
 
     valoresXi.push(`x${index + 1} = ${Math.round(valor * 1000) / 1000}`);
@@ -96,7 +105,6 @@ function mostrarSolucion(solucion) {
   zParrafo.textContent = `Z = ${Math.round(z * 1000) / 1000}`;
   resultadoDiv.appendChild(zParrafo);
 
-  // Interpretación
   interpretacion += valoresXi.join(', ') + `, dando el valor de Z = ${Math.round(z * 1000) / 1000}.`;
 
   const interpretacionParrafo = document.createElement('p');
@@ -110,11 +118,9 @@ function mostrarSolucion(solucion) {
 
 async function enviarDatosAlBackend(datos) {
   try {
-    // Extraer lhs y rhs en el formato que el backend espera
-    const lhs = datos.restricciones.map(r => r.coef.map(Number)); // asegurarse que cada coef es número
+    const lhs = datos.restricciones.map(r => r.coef.map(Number));
     const rhs = datos.restricciones.map(r => Number(r.valor));
 
-    // Preparar el formato correcto para el backend
     const datosBackend = {
       tipo: datos.tipo,
       coef_objetivo: datos.coefObjetivo,
@@ -126,9 +132,7 @@ async function enviarDatosAlBackend(datos) {
 
     const response = await fetch('https://backend-python-sensibilidad-1.onrender.com/analisis-sensibilidad', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(datosBackend)
     });
 
@@ -136,7 +140,6 @@ async function enviarDatosAlBackend(datos) {
     console.log('✅ Respuesta del backend:', resultado);
     alert('Datos enviados correctamente al backend');
 
-    // Mostrar el análisis de sensibilidad (puedes ajustarlo luego)
     mostrarAnalisisSensibilidad(resultado);
 
   } catch (error) {
@@ -148,40 +151,79 @@ async function enviarDatosAlBackend(datos) {
 function mostrarAnalisisSensibilidad(resultado) {
   const contenedor = document.getElementById('resultado-container');
 
-  // Crear sección para la sensibilidad
   const sensibilidadDiv = document.createElement('div');
   sensibilidadDiv.innerHTML = '<h2>Análisis de Sensibilidad</h2>';
 
-  // Tabla de sensibilidad de variables
   let tablaVariables = '<h3>Sensibilidad de Variables:</h3>';
   tablaVariables += '<table border="1"><tr><th>Variable</th><th>Valor Actual</th><th>Comentario</th></tr>';
 
   resultado.sensibilidadVariables.forEach(v => {
-    tablaVariables += `<tr>
-      <td>${v.variable}</td>
-      <td>${v.valorActual}</td>
-      <td>${v.comentario}</td>
-    </tr>`;
+    tablaVariables += `<tr><td>${v.variable}</td><td>${v.valorActual}</td><td>${v.comentario}</td></tr>`;
   });
-
   tablaVariables += '</table>';
 
-  // Tabla de sensibilidad de restricciones
   let tablaRestricciones = '<h3>Sensibilidad de Restricciones:</h3>';
   tablaRestricciones += '<table border="1"><tr><th>Restricción</th><th>Valor Actual</th><th>Valor Sombra</th><th>Comentario</th></tr>';
 
   resultado.sensibilidadRestricciones.forEach(r => {
-    tablaRestricciones += `<tr>
-      <td>${r.restriccion}</td>
-      <td>${r.valorActual}</td>
-      <td>${r.valorSombra}</td>
-      <td>${r.comentario}</td>
-    </tr>`;
+    tablaRestricciones += `<tr><td>${r.restriccion}</td><td>${r.valorActual}</td><td>${r.valorSombra}</td><td>${r.comentario}</td></tr>`;
   });
-
   tablaRestricciones += '</table>';
 
   sensibilidadDiv.innerHTML += tablaVariables + tablaRestricciones;
   contenedor.appendChild(sensibilidadDiv);
 }
 
+function mostrarArbol() {
+  if (!ultimaSolucion || !ultimaSolucion.arbol) {
+    alert('No se ha calculado una solución aún.');
+    return;
+  }
+
+  const arbolMermaid = generarDiagramaMermaid(ultimaSolucion.arbol);
+  const contenedor = document.getElementById('resultado-container');
+
+  const divArbol = document.createElement('div');
+  divArbol.innerHTML = `<pre class="mermaid">${arbolMermaid}</pre>`;
+  contenedor.appendChild(divArbol);
+
+  mermaid.initialize({ startOnLoad: true });
+  mermaid.contentLoaded();
+}
+
+function generarDiagramaMermaid(nodo) {
+  let resultado = 'graph TD\n';
+  let conexiones = [];
+
+  function recorrer(n) {
+    if (!n) return;
+
+    let label = n.id + '<br/>';
+
+    if (n.solucion) {
+      n.solucion.forEach((v, i) => {
+        label += `x${i + 1}=${v.toFixed(2)}<br/>`;
+      });
+      label += `Z=${n.z.toFixed(2)}`;
+    } else {
+      label += 'Infeasible';
+    }
+
+    resultado += `${n.id}["${label}"]\n`;
+
+    if (n.ramaIzquierda) {
+      conexiones.push(`${n.id} --> ${n.ramaIzquierda.id}`);
+      recorrer(n.ramaIzquierda);
+    }
+
+    if (n.ramaDerecha) {
+      conexiones.push(`${n.id} --> ${n.ramaDerecha.id}`);
+      recorrer(n.ramaDerecha);
+    }
+  }
+
+  recorrer(nodo);
+
+  resultado += conexiones.join('\n');
+  return resultado;
+}
