@@ -111,8 +111,8 @@ function mostrarSolucion(solucion) {
 async function enviarDatosAlBackend(datos) {
   try {
     // Extraer lhs y rhs en el formato que el backend espera
-    const lhs = datos.restricciones.map(r => r.coef);
-    const rhs = datos.restricciones.map(r => r.valor);
+    const lhs = datos.restricciones.map(r => r.coef.map(Number)); // asegurarse que cada coef es número
+    const rhs = datos.restricciones.map(r => Number(r.valor));
 
     // Preparar el formato correcto para el backend
     const datosBackend = {
