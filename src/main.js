@@ -154,14 +154,13 @@ function mostrarAnalisisSensibilidad(resultado) {
 
   // Tabla de sensibilidad de variables
   let tablaVariables = '<h3>Sensibilidad de Variables:</h3>';
-  tablaVariables += '<table border="1"><tr><th>Variable</th><th>Valor Actual</th><th>Permisible Aumentar</th><th>Permisible Disminuir</th></tr>';
+  tablaVariables += '<table border="1"><tr><th>Variable</th><th>Valor Actual</th><th>Comentario</th></tr>';
 
   resultado.sensibilidadVariables.forEach(v => {
     tablaVariables += `<tr>
       <td>${v.variable}</td>
       <td>${v.valorActual}</td>
-      <td>${v.permisibleAumentar}</td>
-      <td>${v.permisibleDisminuir}</td>
+      <td>${v.comentario}</td>
     </tr>`;
   });
 
@@ -169,15 +168,14 @@ function mostrarAnalisisSensibilidad(resultado) {
 
   // Tabla de sensibilidad de restricciones
   let tablaRestricciones = '<h3>Sensibilidad de Restricciones:</h3>';
-  tablaRestricciones += '<table border="1"><tr><th>Restricción</th><th>Valor Actual</th><th>Valor Sombra</th><th>Permisible Aumentar</th><th>Permisible Disminuir</th></tr>';
+  tablaRestricciones += '<table border="1"><tr><th>Restricción</th><th>Valor Actual</th><th>Valor Sombra</th><th>Comentario</th></tr>';
 
   resultado.sensibilidadRestricciones.forEach(r => {
     tablaRestricciones += `<tr>
       <td>${r.restriccion}</td>
       <td>${r.valorActual}</td>
       <td>${r.valorSombra}</td>
-      <td>${r.permisibleAumentar}</td>
-      <td>${r.permisibleDisminuir}</td>
+      <td>${r.comentario}</td>
     </tr>`;
   });
 
@@ -186,3 +184,4 @@ function mostrarAnalisisSensibilidad(resultado) {
   sensibilidadDiv.innerHTML += tablaVariables + tablaRestricciones;
   contenedor.appendChild(sensibilidadDiv);
 }
+
