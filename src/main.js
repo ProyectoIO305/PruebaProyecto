@@ -327,3 +327,64 @@ function convertirNodoArbolAD3(nodo) {
 
   return nodoD3;
 }
+function dibujarArbolD3(data) {
+  const contenedor = d3.select("#arbolD3");
+  contenedor.selectAll("*").remove(); // limpia el árbol anterior
+
+  const svg = contenedor.append("svg")
+    .attr("width", "100%")
+    .attr("height", 600);
+
+  const width = contenedor.node().getBoundingClientRect().width;
+  const height = 600;
+
+  const root = d3.hierarchy(data);
+  const treeLayout = d3.tree().size([width - 100, height - 100]);
+  treeLayout(root);
+
+  svg.selectAll("path.link")
+    .data(root.links())
+    .enter()
+    .append("path")
+    .attr("fill", "none")
+    .attr("stroke", "#5b8c5a")
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", function () {
+      return this.getTotalLength();
+    })
+    .attr("stroke-dashoffset", function () {
+      return this.getTotalLength();
+    })
+    .attr("d", d3.linkVertical().x(d => d.x).y(d => d.y))
+    .transition()
+    .duration(1200)
+    .attr("stroke-dashoffset", 0);
+
+  const nodo = svg.selectAll("g.node")
+    .data(root.descendants())
+    .enter()
+    .append("g")
+    .attr("class", "node")
+    .attr("transform", d => `translate(${d.x},${d.y})`);
+
+  nodo.append("circle")
+    .attr("r", 0)
+    .attr("fill", "#9be69b")
+    .attr("stroke", "#3e7d3e")
+    .attr("stroke-width", 2)
+    .transition()
+    .delay((d, i) => i * 300)
+    .duration(400)
+    .attr("r", 20);
+
+  nodo.append("text")
+    .attr("dy", -30)
+    .attr("text-anchor", "middle")
+    .text(d => d.data.name)
+    .style("opacity", 0)
+    .transition()
+    .delay((d, i) => i * 300 + 500)
+    .duration(500)
+    .style("opacity", 1);
+}
+
