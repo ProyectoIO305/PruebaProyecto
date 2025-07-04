@@ -134,3 +134,12 @@ button:hover, #calcularBtn:hover {
   100% { opacity: 1; transform: translateY(0); }
 }
 
+svg .node rect {
+  rx: 12px;
+  ry: 12px;
+}
+
+svg .node {
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+}
+
