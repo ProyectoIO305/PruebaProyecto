@@ -142,4 +142,11 @@ svg .node rect {
 svg .node {
   filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
 }
+#arbolD3 {
+  background: linear-gradient(to bottom, #e0ffe0, #a2d5ab);
+  border-radius: 12px;
+  padding: 10px;
+  margin-top: 20px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.2);
+}
 
