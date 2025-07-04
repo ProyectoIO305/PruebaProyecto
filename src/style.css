@@ -143,12 +143,13 @@ svg .node {
   filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
 }
 .nodo-arbol {
-  background-color: #f4f4f4;
+  background-color: #ffffff;
+  color: #000;
   border: 2px solid #ccc;
   border-radius: 12px;
   padding: 10px;
   margin: 10px auto;
-  width: 200px;
+  width: 220px;
   text-align: center;
   opacity: 0;
   transform: translateY(-30px);
