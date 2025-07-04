@@ -4,6 +4,7 @@ import './generar_tabla.js';
 import MetodoRamificacionAcotacion from './MetodoRamificacionAcotacion.js';
 import MetodoMixto from './MetodoMixto.js';
 import DatosProblema from './DatosProblema.js';
+import NodoArbol from './NodoArbol.js';
 
 let idNodoSolucionFinalGlobal = null;
 
@@ -11,6 +12,12 @@ document.addEventListener('click', function (event) {
   if (event.target && event.target.id === 'calcularBtn') {
     procesarCalculo();
   }
+});
+
+document.getElementById("mostrarArbolBtn").addEventListener("click", () => {
+  const rootNode = tuNodoRaiz; // <-- aquí va tu nodo raíz generado por tu algoritmo
+  const arbolD3 = convertirNodoArbolAD3(rootNode);
+  dibujarArbolD3(arbolD3);
 });
 
 async function procesarCalculo() {
