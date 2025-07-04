@@ -14,6 +14,15 @@ document.addEventListener('click', function (event) {
   }
 });
 
+document.getElementById("mostrarArbolBtn").addEventListener("click", () => {
+  const contenedor = document.getElementById("arbolD3");
+  contenedor.innerHTML = ""; // limpia antes de mostrar
+
+  indexAnimacion = 0; // reinicia el contador
+  recorrerArbolYMostrar(tuNodoRaiz, contenedor); // ← tuNodoRaiz es tu árbol generado
+});
+
+
 
 
 async function procesarCalculo() {
@@ -302,4 +311,23 @@ function formatearRestriccion(restriccion, soloLado = false) {
   }
 
   return `${texto} ${simbolo} ${restriccion.valor}`;
+}
+let indexAnimacion = 0; // contador global
+
+function mostrarNodoVisual(nodo, contenedor) {
+  const div = document.createElement("div");
+  div.classList.add("nodo-arbol");
+  div.style.animationDelay = `${indexAnimacion * 0.5}s`; // medio segundo de retraso por nodo
+  div.innerText = `Nodo ${nodo.id}\nZ=${nodo.z}`;
+
+  contenedor.appendChild(div);
+  indexAnimacion++;
+}
+function recorrerArbolYMostrar(nodo, contenedor) {
+  if (!nodo) return;
+
+  mostrarNodoVisual(nodo, contenedor);
+
+  recorrerArbolYMostrar(nodo.ramaIzquierda, contenedor);
+  recorrerArbolYMostrar(nodo.ramaDerecha, contenedor);
 }
