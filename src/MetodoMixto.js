@@ -1,4 +1,5 @@
 import MetodoSimplex from './MetodoSimplex';
+import NodoArbol from './NodoArbol';
 
 export default class MetodoMixto {
   constructor(tipo, cantidadVariables, datosOriginales, esEntera) {
@@ -10,19 +11,46 @@ export default class MetodoMixto {
 
     this.mejorZ = tipo === 'min' ? Infinity : -Infinity;
     this.mejorSolucion = null;
+
+    this.contadorNodos = 1;
+    this.raizArbol = null;
+    this.idNodoSolucionFinal = null;
   }
 
   async iniciar() {
-    await this.ramificar(this.datosOriginales, [], 0);
+    const resultadoInicial = await this.simplex.metodoSimplexDesdeDatos(
+      this.tipo,
+      this.cantidadVariables,
+      this.datosOriginales,
+      []
+    );
+
+    if (resultadoInicial === null) {
+      console.log('❌ No se encontró solución inicial.');
+      return null;
+    }
+
+    this.raizArbol = new NodoArbol(
+      `PL${this.contadorNodos++}`,
+      this.datosOriginales.restriccionesBase,
+      [],
+      this.datosOriginales.coefObjetivo,
+      resultadoInicial.slice(0, this.cantidadVariables),
+      resultadoInicial[this.cantidadVariables],
+      false,
+      false
+    );
+
+    await this.ramificar(this.datosOriginales, [], this.raizArbol, 0);
 
     if (this.mejorSolucion !== null) {
-      return { solucion: this.mejorSolucion, z: this.mejorZ };
+      return { solucion: this.mejorSolucion, z: this.mejorZ, arbol: this.raizArbol, idNodoSolucionFinal: this.idNodoSolucionFinal };
     } else {
       return null;
     }
   }
 
-  async ramificar(datos, restriccionesAdicionales, nivel) {
+  async ramificar(datos, restriccionesAdicionales, nodoActual, nivel) {
     const resultado = await this.simplex.metodoSimplexDesdeDatos(
       this.tipo,
       this.cantidadVariables,
@@ -32,10 +60,12 @@ export default class MetodoMixto {
 
     if (resultado === null) {
       console.log(`${' '.repeat(nivel * 4)}⛔ Solución no factible. Rama muerta.`);
+      nodoActual.esInfeasible = true;
       return;
     }
 
     console.log(`${' '.repeat(nivel * 4)}🔎 Explorando nodo:`);
+
     for (let i = 0; i < this.cantidadVariables; i++) {
       console.log(`${' '.repeat(nivel * 4)}x${i + 1} = ${resultado[i].toFixed(4)}`);
     }
@@ -49,6 +79,10 @@ export default class MetodoMixto {
       }
     }
 
+    nodoActual.solucion = resultado.slice(0, this.cantidadVariables);
+    nodoActual.z = resultado[this.cantidadVariables];
+    nodoActual.esEntera = esEnteraSol;
+
     if (esEnteraSol) {
       let mejora = false;
       if (this.tipo === 'max') {
@@ -60,6 +94,7 @@ export default class MetodoMixto {
       if (mejora) {
         this.mejorZ = resultado[this.cantidadVariables];
         this.mejorSolucion = resultado.slice(0, this.cantidadVariables);
+        this.idNodoSolucionFinal = nodoActual.id;
 
         console.log(`${' '.repeat(nivel * 4)}✅ NUEVA mejor solución entera:`);
         for (let i = 0; i < this.cantidadVariables; i++) {
@@ -101,6 +136,7 @@ export default class MetodoMixto {
 
     console.log(`${' '.repeat(nivel * 4)}📌 Ramificando x${varIndex + 1} = ${valor.toFixed(4)}`);
 
+    // Rama izquierda
     const ramaIzq = JSON.parse(JSON.stringify(restriccionesAdicionales));
     ramaIzq.push({
       coef: this.crearCoeficiente(varIndex),
@@ -108,8 +144,22 @@ export default class MetodoMixto {
       valor: Math.floor(valor)
     });
     console.log(`${' '.repeat(nivel * 4)}↙️  Rama Izquierda: x${varIndex + 1} <= ${Math.floor(valor)}`);
-    await this.ramificar(datos, ramaIzq, nivel + 1);
 
+    const nodoIzquierda = new NodoArbol(
+      `PL${this.contadorNodos++}`,
+      this.datosOriginales.restriccionesBase,
+      ramaIzq,
+      this.datosOriginales.coefObjetivo,
+      [],
+      0,
+      false,
+      false
+    );
+
+    nodoActual.ramaIzquierda = nodoIzquierda;
+    await this.ramificar(datos, ramaIzq, nodoIzquierda, nivel + 1);
+
+    // Rama derecha
     const ramaDer = JSON.parse(JSON.stringify(restriccionesAdicionales));
     ramaDer.push({
       coef: this.crearCoeficiente(varIndex),
@@ -117,7 +167,20 @@ export default class MetodoMixto {
       valor: Math.ceil(valor)
     });
     console.log(`${' '.repeat(nivel * 4)}↘️  Rama Derecha: x${varIndex + 1} >= ${Math.ceil(valor)}`);
-    await this.ramificar(datos, ramaDer, nivel + 1);
+
+    const nodoDerecha = new NodoArbol(
+      `PL${this.contadorNodos++}`,
+      this.datosOriginales.restriccionesBase,
+      ramaDer,
+      this.datosOriginales.coefObjetivo,
+      [],
+      0,
+      false,
+      false
+    );
+
+    nodoActual.ramaDerecha = nodoDerecha;
+    await this.ramificar(datos, ramaDer, nodoDerecha, nivel + 1);
   }
 
   crearCoeficiente(index) {
