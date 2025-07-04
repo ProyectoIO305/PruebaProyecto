@@ -99,6 +99,35 @@ button:hover, #calcularBtn:hover {
   animation: fadeIn 1s ease forwards;
 }
 
+.resultado table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(4px);
+  border-radius: 8px;
+  overflow: hidden;
+  color: white;
+}
+
+.resultado th, 
+.resultado td {
+  text-align: center;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+
+.resultado th {
+  background-color: rgba(255, 255, 255, 0.15);
+  font-weight: 600;
+}
+
+
+.resultado tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
 
 @keyframes fadeIn {
   0% { opacity: 0; transform: translateY(20px); }
