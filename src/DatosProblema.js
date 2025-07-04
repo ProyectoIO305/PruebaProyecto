@@ -1,7 +1,7 @@
 export default class DatosProblema {
     constructor() {
-        this.coefObjetivo = []; // Ejemplo: [3, 2, 5]
-        this.restriccionesBase = []; // Cada restricción es: { coef: [], operador: '<=', valor: 10 }
+        this.coefObjetivo = [];
+        this.restriccionesBase = [];
     }
 
     agregarRestriccion(coef, operador, valor) {

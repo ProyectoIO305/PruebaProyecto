@@ -8,9 +8,8 @@ document.getElementById("generarTabla").addEventListener("click", function () {
   }
 
   const contenedor = document.getElementById("tabla-container");
-  contenedor.innerHTML = ""; // Limpia lo anterior
+  contenedor.innerHTML = "";
 
-  // ================= FUNCION OBJETIVO ==================
   const filaZ = document.createElement("div");
   filaZ.classList.add("fila-restriccion");
 
@@ -45,7 +44,6 @@ document.getElementById("generarTabla").addEventListener("click", function () {
 
   contenedor.appendChild(filaZ);
 
-  // ================ RESTRICCIONES ==================
   for (let i = 0; i < cantRestricciones; i++) {
     const fila = document.createElement("div");
     fila.classList.add("fila-restriccion");
@@ -81,7 +79,6 @@ document.getElementById("generarTabla").addEventListener("click", function () {
     contenedor.appendChild(fila);
   }
 
-  // ================ COMBOBOX ENTERA/CONTINUA ==================
   const contenedorTipos = document.createElement("div");
   contenedorTipos.id = "tiposVariablesContainer";
 
@@ -113,7 +110,6 @@ document.getElementById("generarTabla").addEventListener("click", function () {
 
   contenedor.appendChild(contenedorTipos);
 
-  // ================ BOTON CALCULAR ==================
   const btnCalcular = document.createElement("button");
   btnCalcular.textContent = "Calcular";
   btnCalcular.id = "calcularBtn";

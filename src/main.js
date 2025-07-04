@@ -1,4 +1,3 @@
-// IMPORTACIONES IGUAL
 import './style.css';
 import './generar_tabla.js';
 
@@ -6,7 +5,7 @@ import MetodoRamificacionAcotacion from './MetodoRamificacionAcotacion.js';
 import MetodoMixto from './MetodoMixto.js';
 import DatosProblema from './DatosProblema.js';
 
-let idNodoSolucionFinalGlobal = null; // 👉 Variable global para almacenar el id de la solución final
+let idNodoSolucionFinalGlobal = null;
 
 document.addEventListener('click', function (event) {
   if (event.target && event.target.id === 'calcularBtn') {
@@ -54,7 +53,7 @@ async function procesarCalculo() {
     solucion = await ramificacion.iniciar();
   }
 
-  idNodoSolucionFinalGlobal = solucion.idNodoSolucionFinal; // 👉 Guardamos el id globalmente
+  idNodoSolucionFinalGlobal = solucion.idNodoSolucionFinal;
 
   mostrarSolucion(solucion);
 
@@ -195,7 +194,7 @@ function agregarBotonArbol(arbol) {
 function mostrarArbolMermaid(arbol) {
   const contenedor = document.getElementById('resultado-container');
 
-  arbol.idSolucionFinal = idNodoSolucionFinalGlobal; // 👉 Pasamos el id de la solución final
+  arbol.idSolucionFinal = idNodoSolucionFinalGlobal;
 
   const diagramaMermaid = generarDiagramaMermaid(arbol);
 
@@ -252,7 +251,7 @@ function generarDiagramaMermaid(nodoRaiz) {
 
     if (nodoActual.esInfeasible) {
       etiqueta += '\\n⛔ Inviable';
-    } else if (nodoActual.id === idSolucionFinal) { // 👉 Solo la solución final
+    } else if (nodoActual.id === idSolucionFinal) {
       etiqueta += '\\n⭐ Solución Final';
       estilos.push(`style ${nodoActual.id} fill:#c6f6c6,stroke:#333,stroke-width:2px`);
     } else if (nodoActual.esEntera) {

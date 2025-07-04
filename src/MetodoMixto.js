@@ -111,7 +111,6 @@ export default class MetodoMixto {
       return;
     }
 
-    // Buscar variable fraccional entera
     let varFraccional = -1;
     let maxFrac = 0;
     for (let i = 0; i < this.cantidadVariables; i++) {
@@ -136,7 +135,6 @@ export default class MetodoMixto {
 
     console.log(`${' '.repeat(nivel * 4)}📌 Ramificando x${varIndex + 1} = ${valor.toFixed(4)}`);
 
-    // Rama izquierda
     const ramaIzq = JSON.parse(JSON.stringify(restriccionesAdicionales));
     ramaIzq.push({
       coef: this.crearCoeficiente(varIndex),
@@ -159,7 +157,6 @@ export default class MetodoMixto {
     nodoActual.ramaIzquierda = nodoIzquierda;
     await this.ramificar(datos, ramaIzq, nodoIzquierda, nivel + 1);
 
-    // Rama derecha
     const ramaDer = JSON.parse(JSON.stringify(restriccionesAdicionales));
     ramaDer.push({
       coef: this.crearCoeficiente(varIndex),

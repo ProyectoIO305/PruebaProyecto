@@ -11,9 +11,9 @@ export default class MetodoRamificacionAcotacion {
     this.cantidadVariables = cantidadVariables;
     this.datosOriginales = datosOriginales;
 
-    this.contadorNodos = 1; // Para asignar IDs únicos
-    this.raizArbol = null;  // Nodo raíz del árbol
-    this.idNodoSolucionFinal = null; // 👉 Aquí guardaremos el ID de la mejor solución
+    this.contadorNodos = 1;
+    this.raizArbol = null; 
+    this.idNodoSolucionFinal = null; 
   }
 
   async iniciar() {
@@ -100,7 +100,7 @@ export default class MetodoRamificacionAcotacion {
       if (resultado[this.cantidadVariables] > this.mejorZ) {
         this.mejorZ = resultado[this.cantidadVariables];
         this.mejorSolucion = resultado.slice(0, this.cantidadVariables);
-        this.idNodoSolucionFinal = nodoActual.id; // 👉 Guardamos el ID de la mejor solución
+        this.idNodoSolucionFinal = nodoActual.id; 
 
         console.log('✅ NUEVA mejor solución entera encontrada:');
         for (let i = 0; i < this.cantidadVariables; i++) {

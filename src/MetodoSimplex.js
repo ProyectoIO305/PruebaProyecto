@@ -2,7 +2,6 @@ import solver from 'javascript-lp-solver';
 
 export default class MetodoSimplex {
   metodoSimplexDesdeDatos(tipo, cantVariables, datos, restriccionesExtras) {
-    // Preparar el modelo
     const model = {
       optimize: "Z",
       opType: tipo === 'min' ? "min" : "max",
@@ -10,7 +9,6 @@ export default class MetodoSimplex {
       variables: {}
     };
 
-    // Construir las restricciones base
     datos.restriccionesBase.forEach((restriccion, index) => {
       restriccion.coef.forEach((coef, varIndex) => {
         const varName = `x${varIndex + 1}`;
@@ -30,7 +28,6 @@ export default class MetodoSimplex {
       }
     });
 
-    // Agregar restricciones adicionales si existen
     if (restriccionesExtras && restriccionesExtras.length > 0) {
       restriccionesExtras.forEach((restriccion, index) => {
         const idx = Object.keys(model.constraints).length + 1;
