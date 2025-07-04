@@ -18,9 +18,15 @@ document.getElementById("mostrarArbolBtn").addEventListener("click", () => {
   const contenedor = document.getElementById("arbolD3");
   contenedor.innerHTML = ""; // limpia antes de mostrar
 
-  indexAnimacion = 0; // reinicia el contador
-  recorrerArbolYMostrar(tuNodoRaiz, contenedor); // ← tuNodoRaiz es tu árbol generado
+  if (!window.arbolGenerado) {
+    alert("Primero debes calcular el problema.");
+    return;
+  }
+
+  indexAnimacion = 0;
+  recorrerArbolYMostrar(window.arbolGenerado, contenedor);
 });
+
 
 
 
@@ -63,6 +69,8 @@ async function procesarCalculo() {
   } else {
     const ramificacion = new MetodoRamificacionAcotacion(tipo, cantidadVariables, datos);
     solucion = await ramificacion.iniciar();
+    window.arbolGenerado = solucion.arbol; // lo hacemos global para poder usarlo luego
+
   }
 
   idNodoSolucionFinalGlobal = solucion.idNodoSolucionFinal;
