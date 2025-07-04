@@ -300,3 +300,23 @@ function formatearRestriccion(restriccion, soloLado = false) {
 
   return `${texto} ${simbolo} ${restriccion.valor}`;
 }
+function convertirNodoArbolAD3(nodo) {
+  if (!nodo) return null;
+
+  let estado = `Nodo ${nodo.id}\\nZ=${nodo.z}`;
+  if (nodo.esEntera) estado += "\\n✔ Entera";
+  if (nodo.esInfeasible) estado += "\\n❌ Inviable";
+
+  const nodoD3 = {
+    name: estado,
+    children: []
+  };
+
+  const izquierda = convertirNodoArbolAD3(nodo.ramaIzquierda);
+  const derecha = convertirNodoArbolAD3(nodo.ramaDerecha);
+
+  if (izquierda) nodoD3.children.push(izquierda);
+  if (derecha) nodoD3.children.push(derecha);
+
+  return nodoD3;
+}
