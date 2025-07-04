@@ -303,6 +303,3 @@ function formatearRestriccion(restriccion, soloLado = false) {
 
   return `${texto} ${simbolo} ${restriccion.valor}`;
 }
-
-
-
