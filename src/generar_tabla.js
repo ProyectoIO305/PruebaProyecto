@@ -40,6 +40,12 @@ document.getElementById("generarTabla").addEventListener("click", function () {
     const label = document.createElement("span");
     label.textContent = `X${j + 1} `;
     filaZ.appendChild(label);
+    //Aqui cambio
+    if (j < cantVariables - 1) {
+      const mas = document.createElement("span");
+      mas.textContent = " + ";
+      filaZ.appendChild(mas);
+    }
   }
 
   contenedor.appendChild(filaZ);
@@ -58,6 +64,12 @@ document.getElementById("generarTabla").addEventListener("click", function () {
       const label = document.createElement("span");
       label.textContent = `X${j + 1} `;
       fila.appendChild(label);
+      //Aqui cambio
+      if (j < cantVariables - 1) {
+        const mas = document.createElement("span");
+        mas.textContent = " + ";
+        fila.appendChild(mas);
+      }
     }
 
     const operador = document.createElement("select");
@@ -92,6 +104,7 @@ document.getElementById("generarTabla").addEventListener("click", function () {
 
     const tipoVariable = document.createElement("select");
     tipoVariable.classList.add("tipo-variable");
+    tipoVariable.style.width = "100px"; //Aqui cambio
 
     const opcionEntera = document.createElement("option");
     opcionEntera.value = "entera";
