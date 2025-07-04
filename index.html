@@ -11,25 +11,25 @@
 <body>
   <h1>Calculador de PL con ramificación y acotación</h1>
 
-  <div class="form-row">
+  <div class="form-row" class="resultado">
     <label for="variables">Ingrese la cantidad de variables:</label>
     <input type="text" id="variables" placeholder="Cantidad de variables (entero)" required>
   </div>
 
-  <div class="form-row">
+  <div class="form-row" class="resultado">
     <label for="restricciones">Ingrese la cantidad de restricciones:</label>
     <input type="text" id="restricciones" placeholder="Cantidad de restricciones (entero)" required>
   </div>
 
-  <div class="form-row">
+  <div class="form-row" class="resultado">
     <button id="generarTabla" type="button">Generar tabla</button>
   </div>
 
-  <div id="tabla-container"></div>
+  <div id="tabla-container" class="resultado"></div>
 
-  <div id="resultado-container"></div>
+  <div id="resultado-container" class="resultado"></div>
 
-  <div class="form-row" style="margin-top: 20px;">
+  <div class="form-row" style="margin-top: 20px;" class="resultado">
     <button id="mostrarArbolBtn" type="button" style="display: none;">Mostrar Árbol</button>
   </div>
 
