@@ -142,5 +142,33 @@ svg .node rect {
 svg .node {
   filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
 }
+/* Animación de entrada desde arriba */
+@keyframes aparecerDesdeArriba {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Aplica la animación a todos los elementos .resultado */
+.resultado {
+  opacity: 0;
+  transform: translateY(-30px);
+  animation: aparecerDesdeArriba 0.5s ease forwards;
+}
+
+/* Stagger (retraso escalonado) por posición */
+.resultado:nth-of-type(1) { animation-delay: 0s; }
+.resultado:nth-of-type(2) { animation-delay: 0.5s; }
+.resultado:nth-of-type(3) { animation-delay: 1s; }
+.resultado:nth-of-type(4) { animation-delay: 1.5s; }
+.resultado:nth-of-type(5) { animation-delay: 2s; }
+.resultado:nth-of-type(6) { animation-delay: 2.5s; }
+.resultado:nth-of-type(7) { animation-delay: 3s; }
+/* ... puedes seguir extendiendo si hay más nodos */
 
 
